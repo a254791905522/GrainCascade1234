@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a2332">
+    <title>GrainCascade — Charge the Network, Trigger the Cascade</title>
+    <meta name="description" content="GrainCascade is a free casual puzzle on chalk-drawn networks. Tap circles to add charge, chain overflows through neighbors, and hit exact target capacities without bursting protected nodes.">
+    <style>
+        :root {
+            --board: #1a2332;
+            --board-2: #243044;
+            --board-3: #2f3d52;
+            --chalk: #e8ecf4;
+            --chalk-dim: rgba(232, 236, 244, 0.78);
+            --chalk-faint: rgba(232, 236, 244, 0.42);
+            --ink: #0f141c;
+            --cyan: #7ec8e3;
+            --cyan-glow: rgba(126, 200, 227, 0.35);
+            --mint: #9ee493;
+            --coral: #ff8a7a;
+            --line: rgba(232, 236, 244, 0.14);
+            --shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--chalk);
+            background: var(--board);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 60% 50% at 80% 0%, var(--cyan-glow), transparent 55%),
+                radial-gradient(ellipse 45% 40% at 0% 100%, rgba(158, 228, 147, 0.12), transparent 58%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.015) 2px,
+                    rgba(255, 255, 255, 0.015) 3px
+                );
+        }
+
+        a { color: inherit; }
+
+        a:focus-visible, .btn:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 28px 22px 72px;
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 42px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand svg { width: 48px; height: 48px; flex: none; }
+
+        .brand strong {
+            display: block;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.2vw, 1.28rem);
+            letter-spacing: -0.01em;
+            line-height: 1.05;
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 3px;
+            color: var(--cyan);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .bar nav {
+            display: flex;
+            gap: 22px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .bar nav a { text-decoration: none; color: var(--chalk-faint); }
+        .bar nav a:hover { color: var(--chalk); }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--mint);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .eyebrow i {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mint);
+            box-shadow: 0 0 12px rgba(158, 228, 147, 0.6);
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            margin-bottom: 18px;
+        }
+
+        h1 span {
+            display: block;
+            color: var(--chalk-dim);
+            font-weight: 600;
+            font-size: 0.88em;
+            margin-top: 0.08em;
+        }
+
+        .lede {
+            color: var(--chalk-dim);
+            font-size: 1.08rem;
+            line-height: 1.72;
+            max-width: 36rem;
+            margin-bottom: 18px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 26px;
+        }
+
+        .chips span {
+            border: 1px dashed var(--line);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--chalk);
+            background: rgba(36, 48, 68, 0.65);
+        }
+
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 13px 20px;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-go {
+            background: linear-gradient(180deg, #b8f0b0, var(--mint));
+            color: var(--ink);
+            box-shadow: 0 8px 24px rgba(158, 228, 147, 0.22);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--chalk);
+            border: 1.5px solid rgba(232, 236, 244, 0.28);
+        }
+
+        .diagram-frame {
+            background: var(--board-2);
+            border: 2px solid rgba(232, 236, 244, 0.12);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 16px;
+            position: relative;
+        }
+
+        .diagram-frame::before {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border: 1px dashed rgba(126, 200, 227, 0.25);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .diagram-frame svg { width: 100%; height: auto; display: block; }
+
+        .node-pulse { animation: pulse 2.4s ease-in-out infinite; }
+        .flow-a { animation: flow 3s linear infinite; }
+        .flow-b { animation: flow 3s linear infinite 0.5s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; filter: drop-shadow(0 0 6px var(--cyan)); }
+        }
+
+        @keyframes flow {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .legend span {
+            background: rgba(15, 20, 28, 0.55);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--chalk-dim);
+        }
+
+        .legend .below { color: var(--cyan); }
+        .legend .full { color: var(--mint); }
+        .legend .burst { color: var(--coral); }
+
+        .cards {
+            margin-top: 28px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .card {
+            border-radius: 14px;
+            padding: 22px 22px 24px;
+            min-height: 100%;
+        }
+
+        .card.light {
+            background: var(--chalk);
+            color: var(--ink);
+        }
+
+        .card.dark {
+            background: var(--board-2);
+            border: 1px solid var(--line);
+        }
+
+        .card svg { width: 44px; height: 44px; display: block; margin-bottom: 14px; }
+
+        .card h2 {
+            font-size: 1.65rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .card p { line-height: 1.62; font-size: 1rem; }
+        .card.light p { color: #4a5568; }
+        .card.dark p { color: var(--chalk-dim); }
+
+        .play { margin-top: 68px; }
+
+        .play h2, .features h2 {
+            font-weight: 800;
+            font-size: clamp(1.9rem, 4vw, 2.85rem);
+            letter-spacing: -0.03em;
+            line-height: 1.02;
+        }
+
+        .play .intro, .features .intro {
+            max-width: 40rem;
+            margin-top: 12px;
+            color: var(--chalk-dim);
+            line-height: 1.68;
+            font-size: 1.05rem;
+        }
+
+        .states {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .states li {
+            background: rgba(36, 48, 68, 0.7);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px 16px 20px;
+        }
+
+        .states b {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            margin-bottom: 10px;
+        }
+
+        .states li:nth-child(1) b { color: var(--cyan); }
+        .states li:nth-child(2) b { color: var(--mint); }
+        .states li:nth-child(3) b { color: var(--coral); }
+
+        .states h3 {
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .states p { color: var(--chalk-dim); line-height: 1.52; font-size: 0.94rem; }
+
+        .phases {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .phase {
+            border-left: 3px solid var(--cyan);
+            padding: 14px 16px;
+            background: rgba(15, 20, 28, 0.35);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .phase:nth-child(2) { border-left-color: var(--mint); }
+        .phase:nth-child(3) { border-left-color: var(--coral); }
+
+        .phase em {
+            font-style: normal;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--chalk-faint);
+        }
+
+        .phase h3 {
+            font-size: 1rem;
+            margin: 6px 0 4px;
+            font-weight: 700;
+        }
+
+        .phase p { font-size: 0.9rem; color: var(--chalk-dim); line-height: 1.5; }
+
+        .features { margin-top: 68px; }
+
+        .grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 14px;
+        }
+
+        .panel, .spec {
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .panel {
+            background: var(--chalk);
+            color: var(--ink);
+        }
+
+        .panel h3, .spec h3 {
+            font-size: 1.55rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .panel p, .spec p { line-height: 1.6; }
+        .panel p { color: #4a5568; }
+        .spec p { color: var(--chalk-dim); }
+
+        .panel ul {
+            margin-top: 14px;
+            display: grid;
+            gap: 10px;
+            list-style: none;
+        }
+
+        .panel li {
+            background: #dfe6ef;
+            border-radius: 10px;
+            padding: 12px 14px;
+            line-height: 1.5;
+            font-size: 0.98rem;
+        }
+
+        .panel li strong { display: block; margin-bottom: 2px; }
+
+        .spec {
+            background: var(--board-2);
+            border: 1px solid var(--line);
+        }
+
+        .spec dl {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .spec div {
+            background: rgba(15, 20, 28, 0.45);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .spec dt {
+            color: var(--cyan);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .spec dd { font-weight: 700; font-size: 0.95rem; }
+
+        .board-cta {
+            margin-top: 28px;
+            background: linear-gradient(120deg, var(--board-3), #3a4d66);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .board-cta p { line-height: 1.6; max-width: 40rem; color: var(--chalk-dim); font-size: 1.02rem; }
+        .board-cta .btn-go { background: var(--chalk); color: var(--ink); }
+
+        footer {
+            margin-top: 26px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--chalk-faint);
+            font-size: 0.86rem;
+        }
+
+        footer a { color: var(--cyan); text-decoration: none; font-weight: 700; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .hero, .cards, .grid, .states, .phases { grid-template-columns: 1fr; }
+            .hero > *, .cards > *, .grid > * { min-width: 0; }
+            .bar { align-items: flex-start; flex-wrap: wrap; }
+            .bar nav { width: 100%; flex-wrap: wrap; }
+            .actions { flex-direction: column; align-items: stretch; }
+            .actions .btn, .board-cta .btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .node-pulse, .flow-a, .flow-b { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header class="bar">
+            <a class="brand" href="index.html">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                    <rect width="48" height="48" rx="12" fill="#243044"/>
+                    <circle cx="24" cy="18" r="8" fill="none" stroke="#7ec8e3" stroke-width="2" stroke-dasharray="3 2"/>
+                    <circle cx="14" cy="32" r="6" fill="none" stroke="#e8ecf4" stroke-width="1.8"/>
+                    <circle cx="34" cy="32" r="6" fill="none" stroke="#e8ecf4" stroke-width="1.8"/>
+                    <path d="M24 26 L14 28 M24 26 L34 28" stroke="#9ee493" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="24" cy="18" r="2.5" fill="#9ee493"/>
+                </svg>
+                <span>
+                    <strong>GrainCascade</strong>
+                    <small>Charge &amp; cascade</small>
+                </span>
+            </a>
+            <nav>
+                <a href="#play">How to play</a>
+                <a href="#features">Features</a>
+                <a href="privacy.html">Privacy</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <div>
+                    <p class="eyebrow"><i></i> Casual · Free · Designed for iPad</p>
+                    <h1>Tap once.<span>Let the cascade decide.</span></h1>
+                    <p class="lede">
+                        GrainCascade is a chalk-sketched puzzle of circles and connections. Tap a circle to add one unit of charge. Each node has a capacity—push past it and the circle overflows, resets, and permanently sends one unit to every neighbor, which can chain across the whole diagram. Land the exact required charge on every target using as few taps as you can, and never overflow a protected circle.
+                    </p>
+                    <div class="chips">
+                        <span>Chalk network puzzles</span>
+                        <span>One tap per charge</span>
+                        <span>No timers</span>
+                        <span>20 level bands</span>
+                        <span>Age 4+</span>
+                    </div>
+                    <div class="actions">
+                        <a class="btn btn-go" href="https://apps.apple.com/us/app/graincascade/id6817204942?uo=4" target="_blank" rel="noopener noreferrer">Download on the App Store</a>
+                        <a class="btn btn-ghost" href="privacy.html">Privacy notice</a>
+                    </div>
+                </div>
+                <div class="diagram-frame">
+                    <svg viewBox="0 0 300 320" role="img" aria-label="Chalk diagram with connected circles showing charge flowing through a small network">
+                        <rect width="300" height="320" rx="8" fill="#1a2332"/>
+                        <g stroke="#e8ecf4" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.35" fill="none">
+                            <path d="M40 40 H260 M40 280 H260 M40 40 V280 M260 40 V280"/>
+                        </g>
+                        <line x1="150" y1="90" x2="90" y2="180" stroke="#7ec8e3" stroke-width="2" stroke-linecap="round" class="flow-a" stroke-dasharray="8 8"/>
+                        <line x1="150" y1="90" x2="210" y2="180" stroke="#7ec8e3" stroke-width="2" stroke-linecap="round" class="flow-b" stroke-dasharray="8 8"/>
+                        <line x1="90" y1="180" x2="150" y2="250" stroke="#9ee493" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="210" y1="180" x2="150" y2="250" stroke="#9ee493" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="150" cy="90" r="28" fill="none" stroke="#e8ecf4" stroke-width="2.5"/>
+                        <circle cx="150" cy="90" r="22" fill="rgba(126,200,227,0.15)"/>
+                        <text x="150" y="96" text-anchor="middle" fill="#e8ecf4" font-size="14" font-weight="700">3/4</text>
+                        <circle cx="90" cy="180" r="24" fill="none" stroke="#9ee493" stroke-width="2.5" class="node-pulse"/>
+                        <text x="90" y="186" text-anchor="middle" fill="#9ee493" font-size="13" font-weight="700">2</text>
+                        <circle cx="210" cy="180" r="24" fill="none" stroke="#e8ecf4" stroke-width="2"/>
+                        <text x="210" y="186" text-anchor="middle" fill="#e8ecf4" font-size="13" font-weight="700">1</text>
+                        <circle cx="150" cy="250" r="26" fill="none" stroke="#ff8a7a" stroke-width="2.5" stroke-dasharray="5 3"/>
+                        <text x="150" y="244" text-anchor="middle" fill="#ff8a7a" font-size="10" font-weight="700">PROTECTED</text>
+                        <text x="150" y="258" text-anchor="middle" fill="#e8ecf4" font-size="12" font-weight="700">0/3</text>
+                        <text x="150" y="305" text-anchor="middle" fill="rgba(232,236,244,0.5)" font-size="11" font-weight="600">TARGET CAPACITY</text>
+                    </svg>
+                    <div class="legend" aria-hidden="true">
+                        <span class="below">Below cap</span>
+                        <span class="full">At capacity</span>
+                        <span class="burst">Overflow</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cards" aria-label="Core mechanics">
+                <article class="card light">
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <rect width="48" height="48" rx="10" fill="#dfe6ef"/>
+                        <circle cx="24" cy="24" r="14" fill="none" stroke="#243044" stroke-width="2"/>
+                        <path d="M24 14 v10 M24 24 l8 6" stroke="#7ec8e3" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h2>One tap, one grain</h2>
+                    <p>Each tap on a chalk circle adds exactly one charge unit. There is no drag-to-fill meter—the puzzle is planning which node to tap next so cascades land where you need them.</p>
+                </article>
+                <article class="card dark">
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <rect width="48" height="48" rx="10" fill="#243044"/>
+                        <circle cx="16" cy="24" r="8" fill="none" stroke="#ff8a7a" stroke-width="2"/>
+                        <circle cx="32" cy="24" r="8" fill="none" stroke="#e8ecf4" stroke-width="2"/>
+                        <path d="M24 24 h8" stroke="#9ee493" stroke-width="2" marker-end="none"/>
+                    </svg>
+                    <h2>Overflow travels</h2>
+                    <p>When charge exceeds capacity, the circle bursts: it drops to zero and sends one permanent unit to each linked neighbor. Those neighbors can overflow in turn—one tap can ripple through the whole sketch.</p>
+                </article>
+            </section>
+
+            <section class="play" id="play">
+                <h2>Three states on the board.</h2>
+                <p class="intro">Read the diagram before you tap. Protected circles are hard limits—if one overflows, the puzzle fails. Ordinary targets must end on the exact number shown, not one grain over or under.</p>
+                <ul class="states">
+                    <li>
+                        <b>State A</b>
+                        <h3>Below capacity</h3>
+                        <p>The circle still accepts charge. Safe taps add a unit without triggering a burst.</p>
+                    </li>
+                    <li>
+                        <b>State B</b>
+                        <h3>At capacity</h3>
+                        <p>The next tap will overflow. Use that moment deliberately when you want to push charge into neighbors.</p>
+                    </li>
+                    <li>
+                        <b>State C</b>
+                        <h3>Overflowing</h3>
+                        <p>The node resets to zero and distributes one unit along every connection—often starting a chain reaction across the network.</p>
+                    </li>
+                </ul>
+                <div class="phases">
+                    <div class="phase">
+                        <em>Levels 1–7</em>
+                        <h3>Small networks</h3>
+                        <p>Compact diagrams and single-step overflows teach how charge moves.</p>
+                    </div>
+                    <div class="phase">
+                        <em>Levels 8–13</em>
+                        <h3>Chained cascades</h3>
+                        <p>Larger sketches where one tap can trigger multi-hop ripples.</p>
+                    </div>
+                    <div class="phase">
+                        <em>Levels 14–20</em>
+                        <h3>Protected margins</h3>
+                        <p>Tighter capacities and guarded circles demand precise tap counts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features" id="features">
+                <h2>Sketch, solve, count your taps.</h2>
+                <p class="intro">GrainCascade tracks how efficiently you clear diagrams and keeps lifetime stats on your device—no account gate before the first puzzle.</p>
+                <div class="grid">
+                    <article class="panel">
+                        <h3>What you will find</h3>
+                        <p>Pacing climbs from gentle single overflows to diagrams where every tap reshapes the board.</p>
+                        <ul>
+                            <li>
+                                <strong>Exact-target wins</strong>
+                                Every target circle must finish on its required charge—precision beats brute force.
+                            </li>
+                            <li>
+                                <strong>Minimum-tap bragging rights</strong>
+                                Fewer taps on a solve sharpen your rating; the listing tracks Minimum-Tap Solves.
+                            </li>
+                            <li>
+                                <strong>Lifetime counters</strong>
+                                Diagrams Solved, Minimum-Tap Solves, and Levels Cleared summarize your run on the device.
+                            </li>
+                            <li>
+                                <strong>Relaxed pacing</strong>
+                                No countdown clock—think through cascades at your own speed.
+                            </li>
+                        </ul>
+                    </article>
+                    <article class="spec" id="devices">
+                        <h3>On Apple devices</h3>
+                        <p>Designed for iPad. Requires iOS 15 or later, offered in English, rated 4+, and free to download. The listing also names iPhone, iPod touch, Mac with Apple silicon, and Apple Vision. The Mac build is marked not verified for macOS.</p>
+                        <dl>
+                            <div>
+                                <dt>Category</dt>
+                                <dd>Casual</dd>
+                            </div>
+                            <div>
+                                <dt>Price</dt>
+                                <dd>Free</dd>
+                            </div>
+                            <div>
+                                <dt>Size</dt>
+                                <dd>97.9 MB</dd>
+                            </div>
+                            <div>
+                                <dt>Language</dt>
+                                <dd>English</dd>
+                            </div>
+                            <div>
+                                <dt>Age</dt>
+                                <dd>4+</dd>
+                            </div>
+                            <div>
+                                <dt>System</dt>
+                                <dd>iOS 15+</dd>
+                            </div>
+                        </dl>
+                    </article>
+                </div>
+            </section>
+
+            <section class="board-cta">
+                <p><strong>Support and updates live on the store listing.</strong> Questions about GrainCascade—including privacy—are handled through the options on its App Store page.</p>
+                <a class="btn btn-go" href="https://apps.apple.com/us/app/graincascade/id6817204942?uo=4" target="_blank" rel="noopener noreferrer">Download on the App Store</a>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2026 GrainCascade. A casual charge-and-cascade puzzle for iPhone and iPad.</p>
+            <p><a href="privacy.html">Privacy</a> · <a href="https://apps.apple.com/us/app/graincascade/id6817204942?uo=4" target="_blank" rel="noopener noreferrer">App Store</a></p>
+        </footer>
+    </div>
+</body>
+</html>

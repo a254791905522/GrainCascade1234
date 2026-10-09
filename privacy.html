@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a2332">
+    <title>Privacy — GrainCascade</title>
+    <meta name="description" content="Privacy information for GrainCascade. The App Store label states data is not collected from this chalk-network puzzle; progress stays on your device.">
+    <style>
+        :root {
+            --board: #1a2332;
+            --board-2: #243044;
+            --chalk: #e8ecf4;
+            --chalk-dim: rgba(232, 236, 244, 0.78);
+            --chalk-faint: rgba(232, 236, 244, 0.42);
+            --ink: #0f141c;
+            --cyan: #7ec8e3;
+            --mint: #9ee493;
+            --coral: #ff8a7a;
+            --line: rgba(232, 236, 244, 0.14);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--chalk);
+            background: var(--board);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 50% 40% at 20% 0%, rgba(126, 200, 227, 0.18), transparent 55%),
+                radial-gradient(ellipse 40% 35% at 100% 60%, rgba(255, 138, 122, 0.08), transparent 50%);
+        }
+
+        a:focus-visible, .btn:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        .wrap {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 28px 22px 72px;
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand svg { width: 48px; height: 48px; flex: none; }
+
+        .brand strong {
+            display: block;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.2vw, 1.28rem);
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 3px;
+            color: var(--cyan);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .bar nav {
+            display: flex;
+            gap: 22px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .bar nav a { color: var(--chalk-faint); text-decoration: none; }
+        .bar nav a:hover, .bar nav a[aria-current="page"] { color: var(--chalk); }
+
+        .hero-privacy {
+            text-align: center;
+            padding: 28px 20px 32px;
+            margin-bottom: 32px;
+            border-radius: 16px;
+            background: var(--board-2);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-privacy .stamp {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink);
+            background: linear-gradient(180deg, #b8f0b0, var(--mint));
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            margin-bottom: 14px;
+        }
+
+        .lead {
+            color: var(--chalk-dim);
+            font-size: 1.05rem;
+            line-height: 1.72;
+            max-width: 34rem;
+            margin: 0 auto 16px;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--chalk-faint);
+        }
+
+        .meta-row span {
+            padding: 6px 12px;
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+        }
+
+        .chain {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .chain::before {
+            content: "";
+            position: absolute;
+            left: 11px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: repeating-linear-gradient(
+                180deg,
+                var(--cyan) 0,
+                var(--cyan) 6px,
+                transparent 6px,
+                transparent 12px
+            );
+            opacity: 0.5;
+        }
+
+        .node {
+            position: relative;
+            margin-bottom: 18px;
+            padding: 20px 20px 22px 24px;
+            background: rgba(36, 48, 68, 0.85);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        .node::before {
+            content: "";
+            position: absolute;
+            left: -22px;
+            top: 24px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            background: var(--board);
+            box-shadow: 0 0 0 3px rgba(126, 200, 227, 0.2);
+        }
+
+        .node:nth-child(3)::before { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(158, 228, 147, 0.2); }
+        .node:nth-child(5)::before { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(255, 138, 122, 0.2); }
+        .node:nth-child(7)::before { border-color: var(--chalk); }
+
+        .node kbd {
+            display: inline-block;
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        .node h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .node p, .node li {
+            color: var(--chalk-dim);
+            line-height: 1.68;
+            font-size: 0.98rem;
+        }
+
+        .node p + p { margin-top: 10px; }
+
+        .node ul {
+            margin: 10px 0 0 1.1rem;
+        }
+
+        .node li + li { margin-top: 6px; }
+
+        .highlight {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: rgba(126, 200, 227, 0.12);
+            border: 1px solid rgba(126, 200, 227, 0.35);
+            color: var(--chalk);
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+
+        .closing {
+            margin-top: 28px;
+            padding: 22px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2f3d52, var(--board-2));
+            border: 1px solid var(--line);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .closing p {
+            max-width: 28rem;
+            line-height: 1.6;
+            color: var(--chalk-dim);
+            font-size: 0.98rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 12px 18px;
+            background: var(--chalk);
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        footer {
+            margin-top: 28px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--chalk-faint);
+            font-size: 0.86rem;
+        }
+
+        footer a { color: var(--cyan); text-decoration: none; font-weight: 700; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .chain { padding-left: 20px; }
+            .node::before { left: -18px; width: 12px; height: 12px; }
+            .closing .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header class="bar">
+            <a class="brand" href="index.html">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                    <rect width="48" height="48" rx="12" fill="#243044"/>
+                    <circle cx="24" cy="18" r="8" fill="none" stroke="#7ec8e3" stroke-width="2" stroke-dasharray="3 2"/>
+                    <circle cx="14" cy="32" r="6" fill="none" stroke="#e8ecf4" stroke-width="1.8"/>
+                    <circle cx="34" cy="32" r="6" fill="none" stroke="#e8ecf4" stroke-width="1.8"/>
+                    <path d="M24 26 L14 28 M24 26 L34 28" stroke="#9ee493" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="24" cy="18" r="2.5" fill="#9ee493"/>
+                </svg>
+                <span>
+                    <strong>GrainCascade</strong>
+                    <small>Charge &amp; cascade</small>
+                </span>
+            </a>
+            <nav>
+                <a href="index.html">The game</a>
+                <a href="privacy.html" aria-current="page">Privacy</a>
+            </nav>
+        </header>
+
+        <main>
+            <header class="hero-privacy">
+                <p class="stamp">Data not collected · App Store label</p>
+                <h1>Privacy for GrainCascade</h1>
+                <p class="lead">
+                    GrainCascade is a free casual puzzle about charge, capacity, and cascades on chalk-drawn networks. This page explains how information is handled around that experience. It is written for players and guardians; it is not legal advice for your jurisdiction.
+                </p>
+                <div class="meta-row">
+                    <span>Last updated 9 October 2026</span>
+                    <span>No account required</span>
+                    <span>Rated 4+</span>
+                </div>
+            </header>
+
+            <div class="chain">
+                <section class="node" id="product">
+                    <kbd>Node 01</kbd>
+                    <h2>What this document applies to</h2>
+                    <p>
+                        This privacy information covers the GrainCascade app on the App Store and the static English pages shipped with it: the game introduction and this notice. It describes the product only—not a personal website or unrelated service.
+                    </p>
+                    <p>
+                        For help, use the support channels linked from the App Store listing. Your Apple ID, store checkout, Screen Time, and any backup you enable are governed by Apple’s terms and privacy policy.
+                    </p>
+                </section>
+
+                <section class="node" id="label">
+                    <kbd>Node 02</kbd>
+                    <h2>Apple’s privacy label</h2>
+                    <p>
+                        The App Store privacy section for GrainCascade is categorized as <strong>Data Not Collected</strong>. The developer indicates that the app does not collect data from the app. This page does not describe hidden analytics, advertising identifiers, or third-party tracking beyond that public label.
+                    </p>
+                    <p class="highlight">
+                        If the live listing changes, treat the label on the product page as authoritative. This notice will be revised when the game’s practices no longer match what is written here.
+                    </p>
+                </section>
+
+                <section class="node" id="local">
+                    <kbd>Node 03</kbd>
+                    <h2>Diagram progress on your device</h2>
+                    <p>
+                        To run puzzles, the app stores ordinary facts locally: which levels you unlocked, charge states on the current diagram, tap counts toward minimum-tap solves, and lifetime totals such as Diagrams Solved, Minimum-Tap Solves, and Levels Cleared.
+                    </p>
+                    <p>
+                        The store label does not present that information as data the developer collects from you. Deleting GrainCascade removes the app’s local storage. If you use iCloud Backup or similar Apple features, Apple may include app data according to your settings—this listing does not describe a separate publisher cloud login.
+                    </p>
+                </section>
+
+                <section class="node" id="gameplay">
+                    <kbd>Node 04</kbd>
+                    <h2>Taps, overflows, and scores</h2>
+                    <p>
+                        Gameplay is one tap to add one charge unit. Overflow events redistribute charge along drawn connections; those updates happen in the local simulation. They are not described as telemetry sent to a publisher backend.
+                    </p>
+                    <p>
+                        The App Store lists the game as free. This notice does not describe in-app currency, a publisher wallet, or stored payment details inside GrainCascade. Any download or purchase prompt from Apple is Apple’s transaction layer.
+                    </p>
+                </section>
+
+                <section class="node" id="permissions">
+                    <kbd>Node 05</kbd>
+                    <h2>Permissions and profiles</h2>
+                    <p>
+                        You can play without creating a player profile. The listing does not require email, phone number, legal name, contacts, photo library, camera, microphone, or precise location to solve chalk networks.
+                    </p>
+                    <p>
+                        If a future version requests optional permissions, the system dialog on your device will name them. Read that prompt before allowing access.
+                    </p>
+                </section>
+
+                <section class="node" id="distribution">
+                    <kbd>Node 06</kbd>
+                    <h2>Distribution and platform data</h2>
+                    <p>
+                        GrainCascade is installed from the App Store. Updates, refunds, and regional availability follow Apple’s processes. The listing is in English, rated 4+, requires iOS 15 or later, is designed for iPad, and is about 97.9 MB. It also references iPhone, iPod touch, Mac with Apple silicon, and Apple Vision; the Mac line is marked not verified for macOS.
+                    </p>
+                    <p>
+                        Information Apple already holds about your Apple ID is not duplicated into a publisher profile simply because you install this game.
+                    </p>
+                </section>
+
+                <section class="node" id="children">
+                    <kbd>Node 07</kbd>
+                    <h2>Young players (4+)</h2>
+                    <p>
+                        The store age rating is 4+. A parent or guardian decides whether to install the app. Apple’s Screen Time, Ask to Buy, and Family Sharing can restrict downloads when those controls are enabled.
+                    </p>
+                    <p>
+                        Play does not begin with a sign-up form. If you believe a child submitted personal information to the publisher outside normal gameplay, contact support through the App Store listing and include only what is needed to identify the request.
+                    </p>
+                </section>
+
+                <section class="node" id="web">
+                    <kbd>Node 08</kbd>
+                    <h2>These static web pages</h2>
+                    <p>
+                        The introduction and this notice are plain HTML. They include no comment form, newsletter signup, analytics embed, or payment field. Typography uses fonts already on your device.
+                    </p>
+                    <p>
+                        The only outbound product link on both pages is the App Store listing for GrainCascade. There is no link to a personal homepage or unrelated social profile.
+                    </p>
+                    <p>
+                        Depending on where you live, you may have rights to access, correct, or delete personal information. Because the store label states data is not collected from the app, the publisher may have no remote file to export. You may still submit a privacy request via App Store support options.
+                    </p>
+                    <ul>
+                        <li>Name the app (GrainCascade) and state that the message is about privacy.</li>
+                        <li>Describe the action you want taken.</li>
+                        <li>Keep unrelated personal details out of the opening note.</li>
+                    </ul>
+                </section>
+
+                <section class="node" id="changes">
+                    <kbd>Node 09</kbd>
+                    <h2>Changes to this notice</h2>
+                    <p>
+                        The date shown above marks this wording. If a later build introduces collection—for example analytics, ads, or sign-in—the App Store privacy label should be updated to match, and this page will be rewritten accordingly.
+                    </p>
+                    <p>
+                        Continued use after an updated notice is posted means you have had a chance to read the new version on this site or through the store listing’s policy link, whichever applies at that time.
+                    </p>
+                </section>
+            </div>
+
+            <div class="closing">
+                <p>The live App Store listing, privacy label, and product support for GrainCascade are on Apple’s product page.</p>
+                <a class="btn" href="https://apps.apple.com/us/app/graincascade/id6817204942?uo=4" target="_blank" rel="noopener noreferrer">Download on the App Store</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2026 GrainCascade. Privacy information for the charge-and-cascade puzzle.</p>
+            <p><a href="index.html">The game</a> · <a href="https://apps.apple.com/us/app/graincascade/id6817204942?uo=4" target="_blank" rel="noopener noreferrer">App Store</a></p>
+        </footer>
+    </div>
+</body>
+</html>
